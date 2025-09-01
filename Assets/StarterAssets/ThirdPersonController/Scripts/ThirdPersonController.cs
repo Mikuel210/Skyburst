@@ -12,8 +12,10 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM 
     [RequireComponent(typeof(PlayerInput))]
 #endif
-    public class ThirdPersonController : MonoBehaviour
-    {
+    public class ThirdPersonController : MonoBehaviour {
+
+        private SimulatedRigidbody _simulatedRigidbody;
+        
         [Header("Player")]
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
@@ -130,6 +132,8 @@ namespace StarterAssets
             {
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
+
+            _simulatedRigidbody = GetComponent<SimulatedRigidbody>();
         }
 
         private void Start()

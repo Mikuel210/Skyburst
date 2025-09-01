@@ -8,7 +8,7 @@ public class SimulatedRigidbody : MonoBehaviour {
 
     private void FixedUpdate() {
         _velocity *= 1 - _damping;
-        transform.Translate(_velocity, Space.World);
+        transform.Translate(_velocity);
     }
 
     public void AddForce(Vector3 force) => _velocity += force;

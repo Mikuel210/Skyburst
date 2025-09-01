@@ -33,6 +33,6 @@ public class WeaponController : MonoBehaviour {
         Destroy(bullet, 5f);
         
         // Recoil
-        _playerRigidbody.AddForce(Camera.main.transform.forward * -_recoil);
+        _playerRigidbody.AddForce(Vector3.back * _recoil);
     }
 }
