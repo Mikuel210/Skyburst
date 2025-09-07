@@ -1,3 +1,4 @@
+using Helpers;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -5,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace StarterAssets
 {
-	public class StarterAssetsInputs : MonoBehaviour
+	public class StarterAssetsInputs : Singleton<StarterAssetsInputs>
 	{
 		[Header("Character Input Values")]
 		public Vector2 move;
@@ -65,8 +66,9 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
-
-		private void OnApplicationFocus(bool hasFocus)
+		
+		void Start() => SetCursorState(cursorLocked);
+		public void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
 		}

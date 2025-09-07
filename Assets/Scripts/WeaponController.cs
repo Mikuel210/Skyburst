@@ -1,38 +1,71 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class WeaponController : MonoBehaviour {
 
-    [SerializeField] private GameObject _bulletPrefab;
-    [SerializeField] private Transform _bulletSpawn;
-    [Space, SerializeField] private float _fireRate;
-    [SerializeField] private float _shootingForce;
-    [SerializeField] private float _recoil;
+    public bool isPlayer;
+    public AudioClip audio;
+    
+    [Space] public GameObject bulletPrefab;
+    public Transform bulletSpawn;
+    public bool multiple;
+    
+    [Space] public float fireRate;
+    public float shootingForce;
+    public float recoil;
 
     private SimulatedRigidbody _playerRigidbody;
-    private float _time;
+    private FollowCamera _followCamera;
+    public float time;
     
     void Start() {
-        _playerRigidbody = GameObject.FindGameObjectWithTag("Player").GetComponent<SimulatedRigidbody>();
+        _playerRigidbody = GameObject.Find("PlayerParent").GetComponent<SimulatedRigidbody>();    
+        _followCamera = GameObject.Find("RenderingCamera").GetComponent<FollowCamera>();
     }
     
     void Update() {
-        _time += Time.deltaTime;
+        if (!isPlayer) return;
         
         if (!Input.GetMouseButton(0)) return;
-        if (_time < _fireRate) return;
+        if (time < fireRate) return;
 
         Shoot();
-        _time = 0;
+        time = 0;
     }
 
-    private void Shoot() {
+    public void Shoot() {
         // Spawn bullet
-        var bullet = Instantiate(_bulletPrefab, _bulletSpawn.position, _bulletSpawn.rotation);
-        bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * _shootingForce, ForceMode.Impulse);
+        if (!multiple) {
+            var bullet = Instantiate(bulletPrefab, bulletSpawn.position, bulletSpawn.rotation);
+            bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * shootingForce, ForceMode.Impulse);
         
-        Destroy(bullet, 5f);
+            Destroy(bullet, 5f);   
+        }
+        else {
+            for (int i = 0; i < 3; i++) {
+                var euler = bulletSpawn.eulerAngles;
+                var dispersion = 3;
+
+                var rotation = Quaternion.Euler(new(euler.x + Random.Range(-dispersion, dispersion),
+                    euler.y + Random.Range(-dispersion, dispersion),
+                    euler.z + Random.Range(-dispersion, dispersion)));
+                
+                var bullet = Instantiate(bulletPrefab, bulletSpawn.position, rotation);
+                bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * shootingForce, ForceMode.Impulse);
+        
+                Destroy(bullet, 5f);   
+            }
+        }
         
         // Recoil
-        _playerRigidbody.AddForce(Vector3.back * _recoil);
+        if (!isPlayer) return;
+        _playerRigidbody.AddForce(Camera.main.transform.forward * -recoil);
+        
+        // Camera shake
+        _followCamera.StartShake(fireRate / 2, recoil / 350f);
+        
+        // Audio
+        if (audio == null) return;
+        AudioSource.PlayClipAtPoint(audio, transform.position);
     }
 }

@@ -133,7 +133,7 @@ namespace StarterAssets
                 _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
             }
 
-            _simulatedRigidbody = GetComponent<SimulatedRigidbody>();
+            _simulatedRigidbody = transform.parent.GetComponent<SimulatedRigidbody>();
         }
 
         private void Start()
@@ -269,15 +269,18 @@ namespace StarterAssets
                 // rotate to face input direction relative to camera position
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             //}
-
+            
             _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
                               _mainCamera.transform.eulerAngles.y;
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            Vector3 velocity = _simulatedRigidbody.Velocity;
 
             // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
-                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+            _controller.Move(velocity * Time.deltaTime
+                             + new Vector3(0, _verticalVelocity, 0) * Time.deltaTime);
+
+            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime));
 
             // update animator if using character
             if (_hasAnimator)
